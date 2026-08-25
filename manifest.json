@@ -1,0 +1,10 @@
+{
+  "name": "Pattern Dossiers \u2014 Boyne Valley & UAP",
+  "short_name": "Dossiers",
+  "start_url": "./uap-command-center.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0a1016",
+  "theme_color": "#0a1016",
+  "icons": []
+}
