@@ -1131,6 +1131,18 @@ function dosMount(ch){
   // ---- fully-offline inline SVG map for 'map' chapters (no tiles, no network) ----
   if(ch.visual==='map'){
     const pts=(dd.points||[]).filter(p=>p.lat!=null&&p.lng!=null);
+    // Orientation towns (grey) so you can locate the cluster + plug into Google Maps.
+    const TOWNS=[
+      {n:'Dublin',la:53.35,lo:-6.26},{n:'Drogheda',la:53.72,lo:-6.35},{n:'Navan',la:53.65,lo:-6.68},
+      {n:'Belfast',la:54.60,lo:-5.93},{n:'Sligo',la:54.27,lo:-8.47},{n:'Galway',la:53.27,lo:-9.05},
+      {n:'Limerick',la:52.66,lo:-8.63},{n:'Cork',la:51.90,lo:-8.47},{n:'Killarney',la:52.06,lo:-9.51}
+    ];
+    // A couple of major roads (motorway-ish) as [lng,lat] polylines, for orientation only.
+    const ROADS=[
+      {n:'M1 (Dublin–Belfast)', line:[[-6.26,53.35],[-6.35,53.72],[-6.29,54.00],[-5.93,54.60]]},
+      {n:'M4/N4 (Dublin–Sligo)', line:[[-6.26,53.35],[-6.90,53.42],[-7.80,53.72],[-8.47,54.27]]},
+      {n:'M7/M8 (Dublin–Cork)', line:[[-6.26,53.35],[-7.30,53.03],[-8.16,52.66],[-8.47,51.90]]}
+    ];
     // Simplified Ireland coastline (incl. Northern Ireland) as [lng,lat], offline, ~ island outline.
     const IRE=[[-6.25,55.30],[-7.20,55.20],[-8.20,55.05],[-8.65,54.70],[-8.35,54.63],[-8.80,54.30],[-8.55,54.10],
       [-9.90,54.25],[-10.05,53.90],[-9.55,53.80],[-9.90,53.55],[-9.45,53.40],[-10.15,53.42],[-9.70,53.10],
@@ -1153,6 +1165,11 @@ function dosMount(ch){
         poly.setAttribute('points',IRE.map(c=>px(c[0])+','+py(c[1])).join(' '));
         poly.setAttribute('fill','#16324a');poly.setAttribute('fill-opacity','.55');
         poly.setAttribute('stroke','#3d6b8f');poly.setAttribute('stroke-width','1.5');svg.appendChild(poly);
+        // orientation roads (faint)
+        ROADS.forEach(rd=>{const pl=document.createElementNS(NS,'polyline');pl.setAttribute('points',rd.line.map(c=>px(c[0])+','+py(c[1])).join(' '));pl.setAttribute('fill','none');pl.setAttribute('stroke','#4a6076');pl.setAttribute('stroke-opacity','.55');pl.setAttribute('stroke-width','1');svg.appendChild(pl);});
+        // orientation towns (grey dots + small labels)
+        TOWNS.forEach(tw=>{const x=px(tw.lo),y=py(tw.la);const gc=document.createElementNS(NS,'circle');gc.setAttribute('cx',x);gc.setAttribute('cy',y);gc.setAttribute('r','2.5');gc.setAttribute('fill','#9aa4b2');svg.appendChild(gc);
+          const leftT=x>W*0.6;const gt=document.createElementNS(NS,'text');gt.setAttribute('x',leftT?x-5:x+5);gt.setAttribute('y',y-4);gt.setAttribute('fill','#8b97a6');gt.setAttribute('font-size','9px');gt.setAttribute('text-anchor',leftT?'end':'start');gt.textContent=tw.n;svg.appendChild(gt);});
         // dashed connector between sites (visiting thread)
         for(let i=0;i<pts.length-1;i++){const ln=document.createElementNS(NS,'line');ln.setAttribute('x1',px(pts[i].lng));ln.setAttribute('y1',py(pts[i].lat));ln.setAttribute('x2',px(pts[i+1].lng));ln.setAttribute('y2',py(pts[i+1].lat));ln.setAttribute('stroke','#fbbf24');ln.setAttribute('stroke-opacity','.6');ln.setAttribute('stroke-dasharray','5 4');ln.setAttribute('stroke-width','1.5');svg.appendChild(ln);}
         // numbered site markers + labels (number = visiting order)
